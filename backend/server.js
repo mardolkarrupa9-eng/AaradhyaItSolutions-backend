@@ -18,16 +18,8 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ FIXED CORS: This allows your specific live site link to send forms/passwords securely
-app.use(cors({
-  origin: [
-    'https://rhearods.github.io',
-    'http://localhost:5173'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// CORS - allow frontend
+app.use(cors());
 
 app.use(express.json());
 
