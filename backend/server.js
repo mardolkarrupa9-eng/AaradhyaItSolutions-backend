@@ -18,8 +18,16 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS - allow frontend
-app.use(cors());
+// ✅ CHANGE 1: Secure and allow your specific GitHub Pages live link
+app.use(cors({
+  origin: [
+    'https://rhearods.github.io',
+    'http://localhost:5173' // Keeps it working for your local testing too!
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use(express.json());
 
