@@ -18,11 +18,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ CHANGE 1: Secure and allow your specific GitHub Pages live link
+// ✅ FIXED CORS: This allows your specific live site link to send forms/passwords securely
 app.use(cors({
   origin: [
     'https://rhearods.github.io',
-    'http://localhost:5173' // Keeps it working for your local testing too!
+    'http://localhost:5173'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
