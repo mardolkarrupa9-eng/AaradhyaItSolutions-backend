@@ -1,27 +1,24 @@
-import { inquiries } from "../../data/inquiries.js";
+import { db } from "../../db/index.js";
+import { inquiryTable } from "../../db/schema.js";
 
-// POST submit contact form inquiry
-export const submitInquiry = (req, res) => {
+export const submitInquiry = async (req, res) => {
   try {
-    const { name, business, phone, message } = req.body;
+    const { full_name, business_name, phone_no, message, prod_id, method } = req.body;
 
-    if (!name || !phone) {
+    if (!full_name || !phone_no) {
       return res.status(400).json({ message: "Name and phone are required" });
     }
 
-    const newInquiry = {
-      id: `INQ-${String(inquiries.length + 1).padStart(3, "0")}`,
-      product: business || "General Inquiry",
-      method: "Website",
-      message: message || "",
-      name,
-      business: business || "",
-      phone,
-      time: new Date().toLocaleString("en-IN"),
-      status: "New"
-    };
+    await db.insert(inquiryTable).values({
+      full_name,
+      business_name: business_name || null,
+      phone_no,
+      message:       message || null,
+      prod_id:       prod_id || null,
+      status:        "New",
+      method:        method || "Website",
+    });
 
-    inquiries.unshift(newInquiry);
     res.status(201).json({ success: true, message: "Inquiry submitted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });

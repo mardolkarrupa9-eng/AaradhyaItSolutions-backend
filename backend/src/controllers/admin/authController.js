@@ -1,5 +1,9 @@
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
+import { db } from "../../db/index.js";
+import { adminTable } from "../../db/schema.js";
+import { eq } from "drizzle-orm";
 
 dotenv.config();
 
@@ -7,31 +11,30 @@ export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    const adminUsername = process.env.ADMIN_USERNAME || "admin";
-    const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
-    const jwtSecret = process.env.JWT_SECRET || "aaradhya_it_solutions_secret_key_2024";
+    // find admin in DB
+    const [admin] = await db
+      .select()
+      .from(adminTable)
+      .where(eq(adminTable.username, username));
 
-    // Check username
-    if (username !== adminUsername) {
+    if (!admin) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Check password
-    if (password !== adminPassword) {
+    // check password
+    const valid = await bcrypt.compare(password, admin.password_hash);
+    if (!valid) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Create token
+    // create token
     const token = jwt.sign(
-      { username },
-      jwtSecret,
+      { admin_id: admin.admin_id, username: admin.username },
+      process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    res.json({
-      message: "Login successful",
-      token
-    });
+    res.json({ message: "Login successful", token });
 
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });

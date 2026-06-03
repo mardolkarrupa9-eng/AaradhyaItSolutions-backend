@@ -1,16 +1,22 @@
-import { products } from "../../data/products.js";
-import { inquiries } from "../../data/inquiries.js";
+import { db } from "../../db/index.js";
+import { productTable } from "../../db/schema.js";
+import { eq, count } from "drizzle-orm";
 
-// GET home page stats (animated counter)
-export const getStats = (req, res) => {
+// GET homepage stats
+export const getStats = async (req, res) => {
   try {
+    const [productCount] = await db
+      .select({ count: count() })
+      .from(productTable)
+      .where(eq(productTable.is_active, true));
+
     res.json({
       success: true,
       data: {
         businessesServed: 500,
-        yearsExperience: 10,
-        totalProducts: products.length,
-        support: "24/7"
+        yearsExperience:  10,
+        totalProducts:    Number(productCount.count),
+        support:          "24/7"
       }
     });
   } catch (error) {
