@@ -122,3 +122,15 @@ export const notificationPrefsTable = pgTable('notification_prefs', {
   data_export_notif:    boolean('data_export_notif').default(false),
   whatsapp_forwarding:  boolean('whatsapp_forwarding').default(false),
 });
+
+// ─── PRODUCT BACKUPS ──────────────────────────────
+export const productBackupsTable = pgTable('product_backups', {
+  backup_id:    serial('backup_id').primaryKey(),
+  backed_up_at: timestamp('backed_up_at').defaultNow(),
+  label:        text('label').default('auto'),
+  categories:   text('categories'),
+  products:     text('products'),
+  features:     text('features'),
+  specs:        text('specs'),
+  images:       text('images'),
+});

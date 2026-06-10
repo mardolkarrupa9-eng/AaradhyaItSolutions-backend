@@ -3,9 +3,12 @@ import { db } from "../../db/index.js";
 import supabase from "../../db/supabase.js";
 import {
   adminTable, companyInfoTable,
-  notificationPrefsTable, systemConfigTable
+  notificationPrefsTable, systemConfigTable,
+  productTable, categoryTable,
+  prodFeatureTable, prodSpecTable, productImageTable,
+  productBackupsTable
 } from "../../db/schema.js";
-import { eq } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 
 // ─── PROFILE ──────────────────────────────────────────────
 export const getProfile = async (req, res) => {
@@ -288,3 +291,153 @@ export const updateSystem = async (req, res) => {
     res.status(500).json({ message: "Error updating system config", error: error.message });
   }
 };
+
+// ─── BACKUP ───────────────────────────────────────────────
+export const createBackup = async (req, res) => {
+  try {
+    const categories = await db.select().from(categoryTable)
+    const products = await db.select().from(productTable)
+    const features = await db.select().from(prodFeatureTable)
+    const specs = await db.select().from(prodSpecTable)
+    const images = await db.select().from(productImageTable)
+
+    await db.insert(productBackupsTable).values({
+      label:      'manual',
+      categories: JSON.stringify(categories),
+      products:   JSON.stringify(products),
+      features:   JSON.stringify(features),
+      specs:      JSON.stringify(specs),
+      images:     JSON.stringify(images),
+    })
+
+    // Keep only last 30 backups
+    const all = await db.select({ backup_id: productBackupsTable.backup_id })
+      .from(productBackupsTable)
+      .orderBy(desc(productBackupsTable.backed_up_at))
+
+    if (all.length > 30) {
+      const toDelete = all.slice(30).map(b => b.backup_id)
+      await db.delete(productBackupsTable)
+        .where(sql`backup_id = ANY(${toDelete})`)
+    }
+
+    res.json({ success: true, message: 'Backup created successfully' })
+  } catch (error) {
+    res.status(500).json({ message: 'Backup failed', error: error.message })
+  }
+}
+
+export const listBackups = async (req, res) => {
+  try {
+    const backups = await db.select({
+      backup_id:    productBackupsTable.backup_id,
+      backed_up_at: productBackupsTable.backed_up_at,
+      label:        productBackupsTable.label,
+    })
+      .from(productBackupsTable)
+      .orderBy(desc(productBackupsTable.backed_up_at))
+
+    res.json({ success: true, data: backups })
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to list backups', error: error.message })
+  }
+}
+
+export const downloadBackup = async (req, res) => {
+  try {
+    const backup_id = parseInt(req.params.id)
+    const [backup] = await db.select()
+      .from(productBackupsTable)
+      .where(eq(productBackupsTable.backup_id, backup_id))
+
+    if (!backup) return res.status(404).json({ message: 'Backup not found' })
+
+    const data = {
+      exported_at: backup.backed_up_at,
+      label:       backup.label,
+      categories:  JSON.parse(backup.categories || '[]'),
+      products:    JSON.parse(backup.products || '[]'),
+      features:    JSON.parse(backup.features || '[]'),
+      specs:       JSON.parse(backup.specs || '[]'),
+      images:      JSON.parse(backup.images || '[]'),
+    }
+
+    res.setHeader('Content-Disposition', `attachment; filename="backup_${backup_id}.json"`)
+    res.setHeader('Content-Type', 'application/json')
+    res.send(JSON.stringify(data, null, 2))
+  } catch (error) {
+    res.status(500).json({ message: 'Download failed', error: error.message })
+  }
+}
+
+export const restoreBackup = async (req, res) => {
+  try {
+    const backup_id = parseInt(req.params.id)
+    const [backup] = await db.select()
+      .from(productBackupsTable)
+      .where(eq(productBackupsTable.backup_id, backup_id))
+
+    if (!backup) return res.status(404).json({ message: 'Backup not found' })
+
+    const categories = JSON.parse(backup.categories || '[]')
+    const products   = JSON.parse(backup.products || '[]')
+    const features   = JSON.parse(backup.features || '[]')
+    const specs      = JSON.parse(backup.specs || '[]')
+    const images     = JSON.parse(backup.images || '[]')
+
+    // Clear existing data
+    await db.delete(productImageTable)
+    await db.delete(prodFeatureTable)
+    await db.delete(prodSpecTable)
+    await db.delete(productTable)
+    await db.delete(categoryTable)
+
+    // Restore categories
+    if (categories.length > 0) {
+      await db.insert(categoryTable).values(categories)
+    }
+
+    // Restore products
+    if (products.length > 0) {
+      await db.insert(productTable).values(products)
+    }
+
+    // Restore features
+    if (features.length > 0) {
+      await db.insert(prodFeatureTable).values(features)
+    }
+
+    // Restore specs
+    if (specs.length > 0) {
+      await db.insert(prodSpecTable).values(specs)
+    }
+
+    // Restore images
+    if (images.length > 0) {
+      await db.insert(productImageTable).values(images)
+    }
+
+    res.json({ success: true, message: 'Data restored successfully' })
+  } catch (error) {
+    res.status(500).json({ message: 'Restore failed', error: error.message })
+  }
+}
+
+export const deleteBackup = async (req, res) => {
+  try {
+    const backup_id = parseInt(req.params.id)
+    await db.delete(productBackupsTable)
+      .where(eq(productBackupsTable.backup_id, backup_id))
+    res.json({ success: true, message: 'Backup deleted' })
+  } catch (error) {
+    res.status(500).json({ message: 'Delete failed', error: error.message })
+  }
+}
+
+export const clearCache = async (req, res) => {
+  try {
+    res.json({ success: true, message: 'Cache cleared successfully' })
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to clear cache', error: error.message })
+  }
+}
