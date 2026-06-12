@@ -11,6 +11,8 @@ import adminInquiriesRoutes from "./src/routes/admin/inquiriesRoutes.js";
 import dashboardRoutes from "./src/routes/admin/dashboardRoutes.js";
 import categoriesRoutes from "./src/routes/admin/categoriesRoutes.js";
 import settingsRoutes from "./src/routes/admin/settingsRoutes.js";
+import announcementsRoutes from './src/routes/admin/announcementsRoutes.js';
+import reportsRoutes from './src/routes/admin/reportsRoutes.js';
 
 // Routes - Public
 import publicProductsRoutes from "./src/routes/public/productsRoutes.js";
@@ -39,6 +41,8 @@ app.use("/api/admin/inquiries", adminInquiriesRoutes);
 app.use("/api/admin/dashboard", dashboardRoutes);
 app.use("/api/admin/categories", categoriesRoutes);
 app.use("/api/admin/settings", settingsRoutes);
+app.use('/api/admin/announcements', announcementsRoutes);
+app.use('/api/admin/reports', reportsRoutes);
 
 // Public Routes
 app.use("/api/public/products", publicProductsRoutes);

@@ -134,3 +134,13 @@ export const productBackupsTable = pgTable('product_backups', {
   specs:        text('specs'),
   images:       text('images'),
 });
+
+// ─── ANNOUNCEMENTS ────────────────────────────────
+export const announcementsTable = pgTable('announcements', {
+  announcement_id: serial('announcement_id').primaryKey(),
+  title:           varchar('title', { length: 150 }),
+  message:         text('message').notNull(),
+  is_active:       boolean('is_active').default(false),
+  created_at:      timestamp('created_at').defaultNow(),
+  updated_at:      timestamp('updated_at').defaultNow(),
+});
