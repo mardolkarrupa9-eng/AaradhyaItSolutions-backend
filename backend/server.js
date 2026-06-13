@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { db } from "./src/db/index.js"
 import { systemConfigTable } from "./src/db/schema.js"
 
+
 // Routes - Admin
 import authRoutes from "./src/routes/admin/authRoutes.js";
 import adminProductsRoutes from "./src/routes/admin/productsRoutes.js";
@@ -18,6 +19,8 @@ import reportsRoutes from './src/routes/admin/reportsRoutes.js';
 import publicProductsRoutes from "./src/routes/public/productsRoutes.js";
 import publicInquiriesRoutes from "./src/routes/public/inquiriesRoutes.js";
 import statsRoutes from "./src/routes/public/statsRoutes.js";
+import publicAnnouncementsRoutes from "./src/routes/public/announcementsRoutes.js";
+
 
 dotenv.config();
 
@@ -48,6 +51,7 @@ app.use('/api/admin/reports', reportsRoutes);
 app.use("/api/public/products", publicProductsRoutes);
 app.use("/api/public/inquiries", publicInquiriesRoutes);
 app.use("/api/public/stats", statsRoutes);
+app.use("/api/public/announcements", publicAnnouncementsRoutes);
 
 // Test route
 app.get("/", (req, res) => {
