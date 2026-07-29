@@ -14,12 +14,15 @@ import categoriesRoutes from "./src/routes/admin/categoriesRoutes.js";
 import settingsRoutes from "./src/routes/admin/settingsRoutes.js";
 import announcementsRoutes from './src/routes/admin/announcementsRoutes.js';
 import reportsRoutes from './src/routes/admin/reportsRoutes.js';
+import adminEmployeesRoutes from "./src/routes/admin/employeesRoutes.js";
 
 // Routes - Public
 import publicProductsRoutes from "./src/routes/public/productsRoutes.js";
 import publicInquiriesRoutes from "./src/routes/public/inquiriesRoutes.js";
 import statsRoutes from "./src/routes/public/statsRoutes.js";
 import publicAnnouncementsRoutes from "./src/routes/public/announcementsRoutes.js";
+import publicCompanyInfoRoutes from "./src/routes/public/companyInfoRoutes.js";
+import publicEmployeesRoutes from "./src/routes/public/employeesRoutes.js";
 
 
 dotenv.config();
@@ -46,12 +49,15 @@ app.use("/api/admin/categories", categoriesRoutes);
 app.use("/api/admin/settings", settingsRoutes);
 app.use('/api/admin/announcements', announcementsRoutes);
 app.use('/api/admin/reports', reportsRoutes);
+app.use("/api/admin/employees", adminEmployeesRoutes);
 
 // Public Routes
 app.use("/api/public/products", publicProductsRoutes);
 app.use("/api/public/inquiries", publicInquiriesRoutes);
 app.use("/api/public/stats", statsRoutes);
 app.use("/api/public/announcements", publicAnnouncementsRoutes);
+app.use("/api/public/company-info", publicCompanyInfoRoutes);
+app.use("/api/public/employees", publicEmployeesRoutes);
 
 // Test route
 app.get("/", (req, res) => {
