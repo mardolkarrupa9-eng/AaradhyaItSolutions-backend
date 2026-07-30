@@ -35,7 +35,7 @@ app.use(cors({
     'https://aaradhyaitsolutions.netlify.app',
     'http://localhost:5173'
   ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   credentials: true
 
 
