@@ -1,6 +1,6 @@
 import { db } from "../../db/index.js";
 import { inquiryTable, productTable } from "../../db/schema.js";
-import { eq, ilike, or, and, desc } from "drizzle-orm";
+import { eq, ilike, or, and, desc, count } from "drizzle-orm";
 
 const formatTime = (date) => {
   if (!date) return "";
@@ -65,6 +65,19 @@ export const getInquiries = async (req, res) => {
     }));
 
     res.json({ success: true, data: inquiries });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const getNewInquiriesCount = async (req, res) => {
+  try {
+    const [result] = await db
+      .select({ count: count() })
+      .from(inquiryTable)
+      .where(eq(inquiryTable.status, "New"));
+
+    res.json({ success: true, data: { count: Number(result?.count || 0) } });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
