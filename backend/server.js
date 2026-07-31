@@ -32,10 +32,10 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors({
   origin: [
-  'https://aaradhyit.netlify.app',
+  'https://aaradhyaitsolutions.netlify.app',
   'http://localhost:5173',
-  'https://aaradhyit.com',
-  'https://www.aaradhyit.com'
+  'https://aaradhyait.com',
+  'https://www.aaradhyait.com' 
 ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   credentials: true
